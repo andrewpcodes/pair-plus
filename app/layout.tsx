@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Pair+ - Better Pair Programming",
   description: "Manage your development teams, track pair rotations, and collaborate more effectively.",
+  icons: {
+    icon: "/favicon.svg",
+  }
 };
 
 const geistSans = Geist({
