@@ -1,58 +1,90 @@
-import { DeployButton } from "@/components/deploy-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
-import { AuthButton } from "@/components/auth-button";
-import { Hero } from "@/components/hero";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
-import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Suspense } from "react";
+
+async function AuthCheck() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect('/teams');
+  }
+
+  return null;
+}
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center">
-      <div className="flex-1 w-full flex flex-col gap-20 items-center">
-        <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-          <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-            <div className="flex gap-5 items-center font-semibold">
-              <Link href={"/"}>Next.js Supabase Starter</Link>
-              <div className="flex items-center gap-2">
-                <DeployButton />
-              </div>
-            </div>
-            {!hasEnvVars ? (
-              <EnvVarWarning />
-            ) : (
-              <Suspense>
-                <AuthButton />
-              </Suspense>
-            )}
+    <>
+      <Suspense fallback={null}>
+        <AuthCheck />
+      </Suspense>
+      <main className="min-h-screen flex flex-col">
+        {/* Header */}
+        <nav className="w-full border-b border-gray-200 dark:border-gray-800">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Pair+</h1>
+            <ThemeSwitcher />
           </div>
         </nav>
-        <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
-          <Hero />
-          <main className="flex-1 flex flex-col gap-6 px-4">
-            <h2 className="font-medium text-xl mb-4">Next steps</h2>
-            {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-          </main>
-        </div>
 
-        <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
-          <p>
-            Powered by{" "}
-            <a
-              href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-              target="_blank"
-              className="font-bold hover:underline"
-              rel="noreferrer"
-            >
-              Supabase
-            </a>
-          </p>
-          <ThemeSwitcher />
-        </footer>
-      </div>
-    </main>
+        {/* Hero Section */}
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="max-w-4xl text-center space-y-8">
+            <div className="space-y-4">
+              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                Better Pair Programming
+              </h1>
+              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Manage your development teams, track pair rotations, and collaborate more effectively.
+              </p>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6">
+              <Link
+                href="/sign-up"
+                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 w-full sm:w-auto text-center"
+              >
+                Get Started
+              </Link>
+              <Link
+                href="/sign-in"
+                className="px-8 py-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold rounded-lg border border-gray-300 dark:border-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 w-full sm:w-auto text-center"
+              >
+                Sign In
+              </Link>
+            </div>
+
+            {/* Features */}
+            <div className="grid md:grid-cols-3 gap-8 pt-16">
+              <div className="space-y-2">
+                <div className="text-4xl">👥</div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Team Management</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Organize your developers into teams and track membership easily.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div className="text-4xl">🔄</div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Rotation Tracking</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Keep track of pair rotations and ensure everyone collaborates.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div className="text-4xl">📊</div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Insights</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  View team statistics and improve your pairing practices.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </>
   );
 }
